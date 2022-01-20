@@ -1,3 +1,4 @@
+import os
 import re
 from typing import Optional
 from fastapi import FastAPI, Request
@@ -71,6 +72,8 @@ def read_root():
 @app.post('/api/v1/fetch/')
 async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
+        if auth == AUTHORIZATION_TOKEN:
+            os.system('cd /root/supabase-webhook-broker; git pull')
 
 @app.post('/api/v1/function/extractAndInsertURL')
 async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):

@@ -155,14 +155,14 @@ async def get_jobs(request: Request, auth: Optional[str] = None, days: Optional[
             else:
                 interval = f'{days} days'
                 data = supabase.table('jobs').select("*").gte('created_at', f'current_date - interval {interval}').execute()
-                return JSONResponse(data)
+                return JSONResponse(data)[0]
 
 @app.get('/api/v1/jobs/{uid}')
 async def get_job(request: Request, auth: Optional[str] = None, uid: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             if uid:
-                data = supabase.table('jobs').select("*").eq('uid', f'{uid}').execute()
+                data = supabase.table('jobs').select("*").eq('uid', f'{uid}').execute()[0]
                 return JSONResponse(data)
 
 @app.post('/api/v1/fetch/')

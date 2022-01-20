@@ -49,12 +49,12 @@ supabase_token: str = CONFIG['supabase_service_token']
 supabase: Client = create_client(supabase_url, supabase_token)
 
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {'status':200}
 
 
-@app.post("api/v1/function/extractAndInsertURL")
+@app.post("/api/v1/function/extractAndInsertURL")
 def webhook_extractAndInsertURL(body: PostData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:

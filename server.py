@@ -146,7 +146,7 @@ def read_root():
     return {'status':200}
 
 @app.get('/api/v1/jobs')
-async def get_jops(request: Request, auth: Optional[str] = None, days: Optional[int] = None):
+async def get_jobs(request: Request, auth: Optional[str] = None, days: Optional[int] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             if days == None:
@@ -155,6 +155,14 @@ async def get_jops(request: Request, auth: Optional[str] = None, days: Optional[
             else:
                 interval = f'{days} days'
                 data = supabase.table('jobs').select("*").gte('created_at', f'current_date - interval {interval}').execute()
+                return JSONResponse(data)
+
+@app.get('/api/v1/jobs/{uid}')
+async def get_job(request: Request, auth: Optional[str] = None, uid: Optional[str] = None):
+    if auth:
+        if auth == AUTHORIZATION_TOKEN:
+            if uid:
+                data = supabase.table('jobs').select("*").eq('uid', f'{uid}').execute()
                 return JSONResponse(data)
 
 @app.post('/api/v1/fetch/')

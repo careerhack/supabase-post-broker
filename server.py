@@ -1,6 +1,6 @@
 import os
 import re
-import webpreview
+from webpreview import web_preview
 from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -41,6 +41,24 @@ def extractURLs(text: str):
     expression = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     urls = re.findall(expression, text)
     return urls
+
+########################################################################
+#
+# FUNCTION: getWebpreview(url: str)
+# uses webpreview to get info from URL page
+#
+########################################################################
+def getWebpreview(url: str):
+    try:
+        response = web_preview(url, timeout=1000)
+        print(response)
+        title, description, image = response
+        data = {'status':200,'title':title,'description':description,'image':image}
+        return data
+    except Exception as e:
+        print(e)
+        return {'status':400}
+
 
 ########################################################################
 #
@@ -113,16 +131,17 @@ async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional
             url_uid = record_data['uid']
             post_uid = record_data['post_uid']
 
-            urls = extractURLs(post)
+            urlPreview = getWebpreview(url)
 
-            responseData = []
-            for url in urls:
-                INSERTDATA = {
-                    'source_name': source_name,
-                    'source_type': source_type,
-                    'post_uid': post_uid,
-                    'post_ts': post_ts,
-                    'url': url,
-                }
-                responseData.append(sinkData('urls',INSERTDATA))
-            return JSONResponse(responseData)
+            INSERTDATA = {
+                'source_name': source_name,
+                'source_type': source_type,
+                'post_uid': post_uid,
+                'url_uid': url_uid,
+                'url': url,
+                'urlPreview':urlPreview
+            }
+            #sinkData('jobs',INSERTDATA)
+            print(INSERTDATA)
+
+            return JSONResponse(INSERTDATA)

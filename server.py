@@ -1,5 +1,6 @@
 import os
 import re
+import webpreview
 from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -101,16 +102,16 @@ async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Opt
                 responseData.append(sinkData('urls',INSERTDATA))
             return JSONResponse(responseData)
 
-@app.post('/api/v1/function/getURLPreview')
-async def webhook_getURLPreview(request: Request, body: RowData, auth: Optional[str] = None):
+@app.post('/api/v1/function/getDataFromURL')
+async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             record_data = body.record
             source_name = record_data['source_name']
             source_type = record_data['source_type']
-            post_uid = record_data['uid']
-            post_ts = record_data['created_at']
-            post = record_data['post']
+            url = record_data['url']
+            url_uid = record_data['uid']
+            post_uid = record_data['post_uid']
 
             urls = extractURLs(post)
 

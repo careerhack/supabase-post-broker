@@ -1,6 +1,5 @@
 import os
 import re
-from webpreview import web_preview
 from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse

@@ -59,11 +59,15 @@ def getWebpreview(url: str):
 
         soup = BeautifulSoup(html, 'html.parser')
 
+        
         ogtitle = None
         ogdescription = None
         ogimage = None
         ogurl = None
         ogsite_name = None
+        text = None
+        lines = None
+        chunks = None
 
         try:
             ogtitle = soup.find('meta', property='og:title')['content']
@@ -85,6 +89,18 @@ def getWebpreview(url: str):
             ogsite_name = soup.find('meta', property='og:site_name')['content']
         except:
             pass
+        try:
+            # get text
+            text = soup.get_text()
+
+            # break into lines and remove leading and trailing space on each
+            lines = (line.strip() for line in text.splitlines())
+            # break multi-headlines into a line each
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            # drop blank lines
+            text = '\n'.join(chunk for chunk in chunks if chunk)
+        except:
+            pass
 
         data = {
             'status':200,
@@ -92,7 +108,8 @@ def getWebpreview(url: str):
             'ogdescription':ogdescription,
             'ogimage':ogimage,
             'ogurl':ogurl,
-            'ogsite_name':ogsite_name
+            'ogsite_name':ogsite_name,
+            'text':text
         }
         print(data)
         return data

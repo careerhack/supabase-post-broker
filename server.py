@@ -58,4 +58,6 @@ def read_root():
 def webhook_extractAndInsertURL(body: PostData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
+            print(body)
+            
             return body

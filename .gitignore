@@ -1,0 +1,10 @@
+# project specific
+dev/
+.secrets/
+
+# python virtual env
+bin/
+include/
+lib/
+pyvenv.cfg
+.Python

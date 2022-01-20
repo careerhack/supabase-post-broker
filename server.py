@@ -3,7 +3,7 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from typing import Optional
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 
 # get config file
@@ -30,6 +30,20 @@ class PostData(BaseModel):
 
 class RowData(BaseModel):
     record: Optional[dict] = None
+
+
+########################################################################
+#
+# FUNCTION: customJSONResponse(data: dict)
+# bypass use of JSONResponse for something better
+#
+########################################################################
+def customJSONResponse(data: dict):
+    jsonData = json.dumps(dict,indent=4)
+    headers = {
+        'content-type':'application/json'
+    }
+    return Response(jsonData,200)
 
 
 ########################################################################
@@ -143,7 +157,7 @@ supabase: Client = create_client(supabase_url, supabase_token)
 
 @app.get('/api')
 def read_root():
-    return {'status':200}
+    return customJSONResponse({'status':200})
 
 @app.get('/api/v1/jobs')
 async def get_jobs(request: Request, auth: Optional[str] = None, days: Optional[int] = None):
@@ -155,7 +169,7 @@ async def get_jobs(request: Request, auth: Optional[str] = None, days: Optional[
             else:
                 interval = f'{days} days'
                 data = supabase.table('jobs').select("*").gte('created_at', f'current_date - interval {interval}').execute()
-                return JSONResponse(data)[0]
+                return customJSONResponse(data[0])
 
 @app.get('/api/v1/jobs/{uid}')
 async def get_job(request: Request, auth: Optional[str] = None, uid: Optional[str] = None):
@@ -163,14 +177,14 @@ async def get_job(request: Request, auth: Optional[str] = None, uid: Optional[st
         if auth == AUTHORIZATION_TOKEN:
             if uid:
                 data = supabase.table('jobs').select("*").eq('uid', f'{uid}').execute()[0]
-                return JSONResponse(data)
+                return customJSONResponse(data[0])
 
 @app.post('/api/v1/fetch/')
 async def gitUpdate(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             os.system('sudo gitpullbroker')
-            return JSONResponse({'status':200})
+            return customJSONResponse({'status':200})
 
 @app.post('/api/v1/function/extractAndInsertURL')
 async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
@@ -195,7 +209,7 @@ async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Opt
                     'url': url,
                 }
                 responseData.append(sinkData('urls',INSERTDATA))
-            return JSONResponse(responseData)
+            return customJSONResponse(responseData)
 
 @app.post('/api/v1/function/getDataFromURL')
 async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional[str] = None):
@@ -223,4 +237,4 @@ async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional
             sinkData('jobs',INSERTDATA)
             
 
-            return JSONResponse(200)
+            return customJSONResponse({'status':200})

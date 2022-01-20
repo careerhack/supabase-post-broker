@@ -64,12 +64,15 @@ supabase_token: str = CONFIG['supabase_service_token']
 supabase: Client = create_client(supabase_url, supabase_token)
 
 
-@app.get("/api")
+@app.get('/api')
 def read_root():
     return {'status':200}
 
+@app.post('/api/v1/fetch/')
+async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
+    if auth:
 
-@app.post("/api/v1/function/extractAndInsertURL")
+@app.post('/api/v1/function/extractAndInsertURL')
 async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:

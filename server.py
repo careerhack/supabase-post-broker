@@ -98,7 +98,7 @@ def getWebpreview(url: str):
             # break multi-headlines into a line each
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
             # drop blank lines
-            text = '\n'.join(chunk for chunk in chunks if chunk)
+            text = ' \n '.join(chunk for chunk in chunks if chunk)
         except:
             pass
 
@@ -150,7 +150,7 @@ def read_root():
 async def gitUpdate(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
-            os.system('gitpullbroker')
+            os.system('sudo gitpullbroker')
             return JSONResponse({'status':200})
 
 @app.post('/api/v1/function/extractAndInsertURL')

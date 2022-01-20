@@ -54,7 +54,7 @@ def read_root():
     return {'status':200}
 
 
-@app.post("/function/extractAndInsertURL")
+@app.post("api/v1/function/extractAndInsertURL")
 def webhook_extractAndInsertURL(body: PostData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:

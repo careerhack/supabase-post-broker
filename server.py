@@ -39,7 +39,7 @@ class RowData(BaseModel):
 #
 ########################################################################
 def customJSONResponse(data: dict):
-    jsonData = json.dumps(dict,indent=4)
+    jsonData = json.dumps(data,indent=4)
     headers = {
         'content-type':'application/json'
     }

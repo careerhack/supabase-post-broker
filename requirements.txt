@@ -7,6 +7,7 @@ attrs==21.4.0
 Automat==0.8.0
 beautifulsoup4==4.10.0
 blinker==1.4
+bs4==0.0.1
 certifi==2021.10.8
 chardet==4.0.0
 charset-normalizer==2.0.10
@@ -42,6 +43,7 @@ language-selector==0.1
 launchpadlib==1.10.13
 lazr.restfulclient==0.14.2
 lazr.uri==1.0.3
+lxml==4.7.1
 MarkupSafe==1.1.0
 more-itertools==4.2.0
 multidict==5.2.0

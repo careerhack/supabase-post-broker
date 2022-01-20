@@ -199,7 +199,7 @@ async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional
             }
             INSERTDATA.update(urlPreview)
             INSERTDATA.pop('status')
-            response = sinkData('jobs',INSERTDATA)
+            sinkData('jobs',INSERTDATA)
             
 
-            return JSONResponse(response)
+            return JSONResponse(200)

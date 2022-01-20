@@ -127,7 +127,8 @@ def sinkData(table_name: str, data: dict):
     try:
         data = supabase.table(table_name).insert(data).execute()
         return data
-    except:
+    except Exception as e:
+        print(e)
         return None
 
 # init fastapi

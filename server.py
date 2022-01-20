@@ -70,13 +70,38 @@ def read_root():
     return {'status':200}
 
 @app.post('/api/v1/fetch/')
-async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
+async def gitUpdate(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             os.system('cd /root/supabase-webhook-broker; git pull')
 
 @app.post('/api/v1/function/extractAndInsertURL')
 async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
+    if auth:
+        if auth == AUTHORIZATION_TOKEN:
+            record_data = body.record
+            source_name = record_data['source_name']
+            source_type = record_data['source_type']
+            post_uid = record_data['uid']
+            post_ts = record_data['created_at']
+            post = record_data['post']
+
+            urls = extractURLs(post)
+
+            responseData = []
+            for url in urls:
+                INSERTDATA = {
+                    'source_name': source_name,
+                    'source_type': source_type,
+                    'post_uid': post_uid,
+                    'post_ts': post_ts,
+                    'url': url,
+                }
+                responseData.append(sinkData('urls',INSERTDATA))
+            return JSONResponse(responseData)
+
+@app.post('/api/v1/function/getURLPreview')
+async def webhook_getURLPreview(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             record_data = body.record

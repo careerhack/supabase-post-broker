@@ -125,7 +125,7 @@ def getWebpreview(url: str):
 ########################################################################
 def sinkData(table_name: str, data: dict):
     try:
-        data = supabase.table(table_name).insert([data]).execute()
+        data = supabase.table(table_name).insert(data).execute()
         return data
     except Exception as e:
         print(e)
@@ -144,6 +144,18 @@ supabase: Client = create_client(supabase_url, supabase_token)
 @app.get('/api')
 def read_root():
     return {'status':200}
+
+@app.get('/api/v1/jobs')
+async def get_jops(request: Request, auth: Optional[str] = None, days: Optional[int] = None):
+    if auth:
+        if auth == AUTHORIZATION_TOKEN:
+            if days == None:
+                data = supabase.table('jobs').select("*").execute()
+                return JSONResponse(data)
+            else:
+                interval = f'{days} days'
+                data = supabase.table('jobs').select("*").gte('created_at', f'current_date - interval {interval}').execute()
+                return JSONResponse(data)
 
 @app.post('/api/v1/fetch/')
 async def gitUpdate(request: Request, body: RowData, auth: Optional[str] = None):
@@ -199,6 +211,7 @@ async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional
             }
             INSERTDATA.update(urlPreview)
             INSERTDATA.pop('status')
+            print(INSERTDATA.keys())
             sinkData('jobs',INSERTDATA)
             
 

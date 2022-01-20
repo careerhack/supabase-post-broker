@@ -1,6 +1,5 @@
 import os
 import re
-from tkinter import INSERT
 import requests
 from bs4 import BeautifulSoup
 from typing import Optional

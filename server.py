@@ -1,9 +1,9 @@
+import re
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-# get command line args
-import sys
+# get config file
 CONFIGFILE = '.secrets/config.json'
 
 # get configuration file
@@ -25,6 +25,21 @@ class PostData(BaseModel):
     source_name: Optional[str] = None
     source_type: Optional[str] = None
 
+class RowData(BaseModel):
+    record: Optional[dict] = None
+
+
+########################################################################
+#
+# FUNCTION: extractURLs(text: str)
+# extract urls in a text body.
+#
+########################################################################
+def extractURLs(text: str):
+    expression = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+    urls = re.findall(expression, text)
+    return urls
+
 ########################################################################
 #
 # FUNCTION: sinkData(table_name, data)
@@ -35,9 +50,9 @@ class PostData(BaseModel):
 def sinkData(table_name: str, data: dict):
     try:
         data = supabase.table(table_name).insert(data).execute()
-        return 200
+        return data
     except:
-        return 400
+        return None
 
 # init fastapi
 app = FastAPI()
@@ -55,9 +70,26 @@ def read_root():
 
 
 @app.post("/api/v1/function/extractAndInsertURL")
-def webhook_extractAndInsertURL(body: PostData, auth: Optional[str] = None):
+async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):
     if auth:
         if auth == AUTHORIZATION_TOKEN:
-            print(body)
-            
-            return body
+            record_data = body.record
+            source_name = record_data['source_name']
+            source_type = record_data['source_type']
+            post_uid = record_data['uid']
+            post_ts = record_data['created_at']
+            post = record_data['post']
+
+            urls = extractURLs(post)
+
+            responseData = []
+            for url in urls:
+                INSERTDATA = {
+                    'source_name': source_name,
+                    'source_type': source_type,
+                    'post_uid': post_uid,
+                    'post_ts': post_ts,
+                    'url': url,
+                }
+                responseData.append(sinkData('urls',INSERTDATA))
+            return JSONResponse(responseData)

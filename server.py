@@ -125,7 +125,7 @@ def getWebpreview(url: str):
 ########################################################################
 def sinkData(table_name: str, data: dict):
     try:
-        data = supabase.table(table_name).insert(data).execute()
+        data = supabase.table(table_name).insert([data]).execute()
         return data
     except Exception as e:
         print(e)

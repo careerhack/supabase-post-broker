@@ -74,6 +74,7 @@ async def gitUpdate(request: Request, body: RowData, auth: Optional[str] = None)
     if auth:
         if auth == AUTHORIZATION_TOKEN:
             os.system('cd /root/supabase-webhook-broker; git pull')
+            return JSONResponse({'status':200})
 
 @app.post('/api/v1/function/extractAndInsertURL')
 async def webhook_extractAndInsertURL(request: Request, body: RowData, auth: Optional[str] = None):

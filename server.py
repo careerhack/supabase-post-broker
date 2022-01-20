@@ -1,5 +1,7 @@
 import os
 import re
+import requests
+from bs4 import BeautifulSoup
 from typing import Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -44,18 +46,58 @@ def extractURLs(text: str):
 ########################################################################
 #
 # FUNCTION: getWebpreview(url: str)
-# uses webpreview to get info from URL page
+# uses lxml parser to get info from URL page
 #
 ########################################################################
 def getWebpreview(url: str):
     try:
-        response = web_preview(url, timeout=1000)
-        print(response)
-        title, description, image = response
-        data = {'status':200,'title':title,'description':description,'image':image}
+        headers = {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36'
+        }
+        response = requests.get(url,headers=headers, timeout=10)
+        html = response.text
+
+        soup = BeautifulSoup(html, 'html.parser')
+
+        ogtitle = None
+        ogdescription = None
+        ogimage = None
+        ogurl = None
+        ogsite_name = None
+
+        try:
+            ogtitle = soup.find('meta', property='og:title')['content']
+        except:
+            pass
+        try:
+            ogdescription = soup.find('meta', property='og:description')['content']
+        except:
+            pass
+        try:
+            ogimage = soup.find('meta', property='og:image')['content']
+        except:
+            pass
+        try:
+            ogurl = soup.find('meta', property='og:url')['content']
+        except:
+            pass
+        try:
+            ogsite_name = soup.find('meta', property='og:site_name')['content']
+        except:
+            pass
+
+        data = {
+            'status':200,
+            'ogtitle':ogtitle,
+            'ogdescription':ogdescription,
+            'ogimage':ogimage,
+            'ogurl':ogurl,
+            'ogsite_name':ogsite_name
+        }
+        print(data)
         return data
     except Exception as e:
-        print(e)
+        #print(e)
         return {'status':400}
 
 

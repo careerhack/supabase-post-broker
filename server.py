@@ -1,5 +1,6 @@
 import os
 import re
+from tkinter import INSERT
 import requests
 from bs4 import BeautifulSoup
 from typing import Optional
@@ -111,10 +112,8 @@ def getWebpreview(url: str):
             'ogsite_name':ogsite_name,
             'text':text
         }
-        print(data)
         return data
     except Exception as e:
-        #print(e)
         return {'status':400}
 
 
@@ -196,10 +195,11 @@ async def webhook_getDataFromURL(request: Request, body: RowData, auth: Optional
                 'source_type': source_type,
                 'post_uid': post_uid,
                 'url_uid': url_uid,
-                'url': url,
-                'urlPreview':urlPreview
+                'url': url
             }
-            #sinkData('jobs',INSERTDATA)
-            print(INSERTDATA)
+            INSERTDATA.update(urlPreview)
+            INSERTDATA.pop('status')
+            response = sinkData('jobs',INSERTDATA)
+            
 
-            return JSONResponse(INSERTDATA)
+            return JSONResponse(response)
